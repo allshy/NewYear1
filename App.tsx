@@ -11,16 +11,25 @@ import Controls from './components/Controls';
 import { FortuneModal, WriteModal } from './components/Modals';
 import { CardData } from './types';
 
-// Replace this URL with your preferred Chinese New Year music
-// Example: "https://music.163.com/song/media/outer/url?id=4875306.mp3" (Spring Festival Overture)
-// Current: Upbeat instrumental
-const BG_MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+// 🎵 音乐播放列表配置
+// 如何添加本地音乐：
+// 1. 将您的 .mp3 文件复制到项目的根目录（即 index.html 所在的文件夹）
+// 2. 修改下方的 PLAYLIST 数组，将文件名填入，例如: ["./gongxi.mp3", "./chunjie.mp3"]
+// 3. 现在的链接是网络演示音乐，您可以直接替换为您自己的文件路径
+const PLAYLIST = [
+    "./27629979748-1-192.mp3",
+    "./34154023822-1-192.mp3",
+    "./35747987498-1-192.mp3"
+];
 
 const App: React.FC = () => {
     const [cards, setCards] = useState<CardData[]>([]);
     const [writeModalOpen, setWriteModalOpen] = useState(false);
     const [fortuneModalOpen, setFortuneModalOpen] = useState(false);
+    
+    // Music state
     const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
     const fireworksRef = useRef<FireworksHandle>(null);
     const leftCrackerRef = useRef<FirecrackerRef>(null);
@@ -48,13 +57,22 @@ const App: React.FC = () => {
         }
     }, []);
 
+    // Effect to handle track changes while playing
+    useEffect(() => {
+        if (isPlaying && audioRef.current) {
+            // When track index changes, src updates, we need to play again
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.log("Auto-play next track failed (browser policy or load error)", e);
+                });
+            }
+        }
+    }, [currentTrackIndex]); // Only re-run when track index changes
+
     const addCard = (name: string, text: string) => {
         const w = window.innerWidth;
         const h = window.innerHeight;
-        // Logic for flying in effect (simplified to random position setting for CardPile to render)
-        // In the React version, we'll store the target style. The CardPile component handles the render.
-        // To mimic the "fly in", we could use more complex state, but here we just place them.
-        // For visual fidelity to the original, we generate random end coordinates.
         
         const r = (Math.random() - 0.5) * 30;
         const x = (Math.random() - 0.5) * 160;
@@ -81,6 +99,11 @@ const App: React.FC = () => {
             audioRef.current.play().catch(e => console.log("Audio play failed", e));
         }
         setIsPlaying(!isPlaying);
+    };
+
+    const handleSongEnd = () => {
+        // Move to next track, loop back to 0 if at end
+        setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
     };
 
     const handleExplosion = (x: number, y: number) => {
@@ -132,7 +155,12 @@ const App: React.FC = () => {
                 }}
             />
 
-            <audio ref={audioRef} loop src={BG_MUSIC_URL} />
+            {/* Audio Player with Playlist Support */}
+            <audio 
+                ref={audioRef} 
+                src={PLAYLIST[currentTrackIndex]} 
+                onEnded={handleSongEnd}
+            />
         </>
     );
 };
