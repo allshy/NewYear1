@@ -17,8 +17,9 @@ import { CardData } from './types';
 // 2. 修改下方的 PLAYLIST 数组，将文件名填入，例如: ["./gongxi.mp3", "./chunjie.mp3"]
 // 3. 现在的链接是网络演示音乐，您可以直接替换为您自己的文件路径
 const PLAYLIST = [
-    "./27629979748-1-192.mp3",
-    "./35747987498-1-192.mp3"
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
 ];
 
 const App: React.FC = () => {
